@@ -1,0 +1,11 @@
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "8080:8080"
+    volumes:
+      - ./src/main/resources/data:/app/src/main/resources/data:ro
+    environment:
+      - SPRING_PROFILES_ACTIVE=prod
