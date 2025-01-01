@@ -4,20 +4,26 @@ FROM maven:3.8.8-eclipse-temurin-17 as builder
 # Set the working directory
 WORKDIR /app
 
-# Copy the project files to the working directory
-COPY . .
+# Copy only the pom.xml file first
+COPY pom.xml .
 
-# Build the Spring Boot application
-RUN mvn clean package -DskipTests
+# Download dependencies (caches Maven dependencies)
+RUN mvn dependency:go-offline -B
 
-# Use a lightweight base image for runtime
-FROM eclipse-temurin:17-jdk-jammy
+# Copy the source code
+COPY src ./src
+
+# Build the application
+RUN mvn package -DskipTests
+
+# Stage 2: Runtime
+FROM eclipse-temurin:17-jdk-alpine
 
 # Set the working directory for the runtime
 WORKDIR /app
 
 # Copy the JAR file from the builder stage
-COPY --from=builder /app/target/landingpage-0.0.1-SNAPSHOT.jar app.jar
+COPY --from=builder /app/target/*.jar app.jar
 
 # Expose the port Spring Boot runs on
 EXPOSE 8080

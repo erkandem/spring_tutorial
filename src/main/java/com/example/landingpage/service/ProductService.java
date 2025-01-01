@@ -1,8 +1,8 @@
 package com.example.landingpage.service;
 
 import com.example.landingpage.model.Product;
-import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import com.example.landingpage.repository.ProductRepository;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -10,31 +10,15 @@ import java.util.List;
 @Service
 public class ProductService {
 
-    public List<Product> getProducts() {
-        ObjectMapper mapper = new ObjectMapper();
-        try {
-            // Inline JSON content as a String
-            String json = """
-            [
-              {
-                "id": "1",
-                "name": "Product A",
-                "description": "Description for Product A",
-                "price": 19.99
-              },
-              {
-                "id": "2",
-                "name": "Product B",
-                "description": "Description for Product B",
-                "price": 29.99
-              }
-            ]
-            """;
+    @Autowired
+    private ProductRepository productRepository;
 
-            // Parse the JSON string into a list of Product objects
-            return mapper.readValue(json, new TypeReference<List<Product>>() {});
-        } catch (Exception e) {
-            throw new RuntimeException("Error parsing inline JSON", e);
-        }
+    public List<Product> getProducts() {
+        return productRepository.findAll();
+    }
+
+    public Product getProductById(Long id) {
+        return productRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Product not found"));
     }
 }
